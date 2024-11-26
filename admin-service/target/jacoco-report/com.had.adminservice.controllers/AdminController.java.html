@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">admin-service</a> &gt; <a href="index.source.html" class="el_package">com.had.adminservice.controllers</a> &gt; <span class="el_source">AdminController.java</span></div><h1>AdminController.java</h1><pre class="source lang-java linenums">package com.had.adminservice.controllers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.had.adminservice.exception.ResourceNotFoundException;
+import com.had.adminservice.responseBody.FacilityResponseBody;
+import com.had.adminservice.responseBody.PatientCardDetailResponseBody;
+import com.had.adminservice.responseBody.PatientResponseBody;
+import com.had.adminservice.responseBody.ProfessionalResponseBody;
+import com.had.adminservice.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/admin&quot;)
+<span class="fc" id="L19">public class AdminController {</span>
+
+    @Autowired
+    AdminService adminService;
+
+    // Setter for testing purposes
+    public void setAdminService(AdminService adminService) {
+<span class="fc" id="L26">        this.adminService = adminService;</span>
+<span class="fc" id="L27">    }</span>
+
+    @PostMapping(&quot;/add-facility&quot;)
+    public ResponseEntity&lt;String&gt; addFacilityByFacilityId(@RequestParam(&quot;facilityId&quot;) String facilityId) {
+        try {
+            // Check if the facility already exists
+<span class="fc" id="L33">            String message = adminService.addFacility(facilityId);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            if (message.equals(&quot;Facility with the provided id already exists!&quot;)) {</span>
+                // Return 400 for existing facility
+<span class="fc" id="L36">                return ResponseEntity.badRequest().body(message);</span>
+            } else {
+                // Otherwise, return 200 OK
+<span class="fc" id="L39">                return ResponseEntity.ok(message);</span>
+            }
+<span class="fc" id="L41">        } catch (Exception e) {</span>
+            // Return 400 for other errors
+<span class="fc" id="L43">            return ResponseEntity.badRequest().body(&quot;Error processing data: &quot; + e.getMessage());</span>
+        }
+    }
+
+
+    @GetMapping(&quot;/all-facilities&quot;)
+    public ResponseEntity&lt;List&lt;FacilityResponseBody&gt;&gt; getAllFacilities() {
+        try {
+<span class="fc" id="L51">            List&lt;FacilityResponseBody&gt; responseBodies = adminService.getAllFacilities();</span>
+<span class="fc" id="L52">            return ResponseEntity.ok(responseBodies);</span>
+<span class="fc" id="L53">        } catch (Exception e) {</span>
+<span class="fc" id="L54">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();</span>
+        }
+    }
+
+    @GetMapping(&quot;/all-facilities-by-type&quot;)
+    public ResponseEntity&lt;List&lt;FacilityResponseBody&gt;&gt; getAllFacilitiesByType(@RequestParam String type) {
+        try {
+<span class="fc" id="L61">            List&lt;FacilityResponseBody&gt; responseBodies = adminService.getAllFacilitiesByType(type);</span>
+<span class="fc" id="L62">            return ResponseEntity.ok(responseBodies);</span>
+<span class="nc" id="L63">        } catch (Exception e) {</span>
+<span class="nc" id="L64">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();</span>
+        }
+    }
+
+    @GetMapping(&quot;/facility-by-id&quot;)
+    public ResponseEntity&lt;String&gt; getAllFacilityById(@RequestParam Long id) {
+        try {
+<span class="fc" id="L71">            FacilityResponseBody responseBody = adminService.getFacilityById(id);</span>
+            // Convert the FacilityResponseBody to JSON string
+<span class="fc" id="L73">            ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L74">            String jsonString = objectMapper.writeValueAsString(responseBody);</span>
+<span class="fc" id="L75">            return ResponseEntity.ok()</span>
+<span class="fc" id="L76">                    .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L77">                    .body(jsonString);</span>
+<span class="fc" id="L78">        } catch (ResourceNotFoundException e) {</span>
+<span class="fc" id="L79">            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());</span>
+<span class="fc" id="L80">        }catch (Exception e) {</span>
+<span class="fc" id="L81">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&quot;Internal server error&quot;);</span>
+        }
+    }
+
+    @DeleteMapping(&quot;/remove-facility&quot;)
+    public ResponseEntity&lt;String&gt; removeFacility(@RequestParam String facilityId) {
+        try {
+<span class="fc" id="L88">            adminService.removeFacility(facilityId);</span>
+<span class="fc" id="L89">            return ResponseEntity.ok(&quot;Facility with ID &quot; + facilityId + &quot; deleted successfully.&quot;);</span>
+<span class="fc" id="L90">        } catch (ResourceNotFoundException e) {</span>
+<span class="fc" id="L91">            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(&quot;Facility not found: &quot; + e.getMessage());</span>
+<span class="nc" id="L92">        }  catch (Exception e) {</span>
+<span class="nc" id="L93">            return ResponseEntity.badRequest().body(&quot;Error processing data: &quot; + e.getMessage());</span>
+        }
+    }
+
+    //-----------------------------------------------PROFESSIONAL----------------------------------------------------
+
+    @PostMapping(&quot;/add-professional&quot;)
+    public ResponseEntity&lt;String&gt; addProfessionalByFacilityId(@RequestParam(&quot;hpId&quot;) Long hpId) {
+
+<span class="pc bpc" id="L102" title="1 of 4 branches missed.">        if (hpId == null || hpId &lt;= 0) {</span>
+<span class="fc" id="L103">            return ResponseEntity.badRequest().body(&quot;Incorrect format for hpId.&quot;);</span>
+        }
+        try {
+<span class="fc" id="L106">            String message = adminService.addProfessional(hpId);</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            if(message.equals(&quot;Professional with the provided id already exists!&quot;)) {</span>
+<span class="fc" id="L108">                return ResponseEntity.badRequest().body(message);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">            } else if (message.equals(&quot;Professional associated facility id does not exist in Facility and HFR tables.&quot;)) {</span>
+//                return ResponseEntity.badRequest().body(message);
+<span class="fc" id="L111">                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">            }else if(message.equals(&quot;Success&quot;)){</span>
+<span class="fc" id="L113">                return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(message);</span>
+            } else {
+                // Handle any other unexpected message here
+<span class="nc" id="L116">                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(&quot;Unexpected message: &quot; + message);</span>
+            }
+<span class="nc" id="L118">        } catch (Exception e) {</span>
+<span class="nc" id="L119">            return ResponseEntity.badRequest().body(&quot;Error processing data: &quot; + e.getMessage());</span>
+        }
+    }
+
+
+    @DeleteMapping(&quot;/remove-professional&quot;)
+    public ResponseEntity&lt;String&gt; removeProfessional(@RequestParam Long id) {
+        try {
+<span class="fc" id="L127">            adminService.removeProfessional(id);</span>
+<span class="fc" id="L128">            return ResponseEntity.ok(&quot;Professional with ID &quot; + id + &quot; deleted successfully.&quot;);</span>
+<span class="fc" id="L129">        } catch (ResourceNotFoundException e) {</span>
+<span class="fc" id="L130">            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(&quot;Professional not found: &quot; + e.getMessage());</span>
+<span class="nc" id="L131">        }catch (Exception e) {</span>
+<span class="nc" id="L132">            return ResponseEntity.badRequest().body(&quot;Error processing data: &quot; + e.getMessage());</span>
+        }
+    }
+
+    @GetMapping(&quot;/all-professionals&quot;)
+    public ResponseEntity&lt;List&lt;ProfessionalResponseBody&gt;&gt; getAllProfessionals() {
+        try {
+<span class="fc" id="L139">            List&lt;ProfessionalResponseBody&gt; responseBodies = adminService.getAllProfessionals();</span>
+<span class="fc" id="L140">            return ResponseEntity.ok(responseBodies);</span>
+<span class="nc" id="L141">        } catch (Exception e) {</span>
+<span class="nc" id="L142">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();</span>
+        }
+    }
+
+    @GetMapping(&quot;/all-professionals-by-type&quot;)
+    public ResponseEntity&lt;List&lt;ProfessionalResponseBody&gt;&gt; getProfessionalsByType(@RequestParam String type) {
+        try {
+<span class="fc" id="L149">            List&lt;ProfessionalResponseBody&gt; responseBodies = adminService.getAllProfessionalsByType(type);</span>
+<span class="fc" id="L150">            return ResponseEntity.ok(responseBodies);</span>
+<span class="nc" id="L151">        } catch (Exception e) {</span>
+<span class="nc" id="L152">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();</span>
+        }
+    }
+
+    @GetMapping(&quot;/professional-by-id&quot;)
+    public ResponseEntity&lt;String&gt; getProfessionalById(@RequestParam Long id) {
+        try {
+<span class="fc" id="L159">            ProfessionalResponseBody responseBody = adminService.getProfessionalById(id);</span>
+            // Convert the FacilityResponseBody to JSON string
+<span class="fc" id="L161">            ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L162">            String jsonString = objectMapper.writeValueAsString(responseBody);</span>
+<span class="fc" id="L163">            return ResponseEntity.ok()</span>
+<span class="fc" id="L164">                    .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L165">                    .body(jsonString);</span>
+<span class="fc" id="L166">        } catch (ResourceNotFoundException e) {</span>
+<span class="fc" id="L167">            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());</span>
+<span class="nc" id="L168">        } catch (Exception e) {</span>
+<span class="nc" id="L169">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&quot;Internal server error&quot;);</span>
+        }
+    }
+
+    //-----------------------------------------------PATIENT----------------------------------------------------
+
+    @GetMapping(&quot;/all-patients&quot;)
+    public ResponseEntity&lt;?&gt; getAllPatientDetails() {
+        try {
+<span class="fc" id="L178">            List&lt;PatientCardDetailResponseBody&gt; patientDetails = adminService.getAllPatientDetails();</span>
+<span class="fc" id="L179">            return ResponseEntity.ok(patientDetails);</span>
+<span class="nc" id="L180">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L181">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());</span>
+        }
+    }
+
+    @GetMapping(&quot;/details-by-id&quot;)
+    public ResponseEntity&lt;?&gt; getPatientDetailsById(@RequestParam Long patientId) {
+        try {
+<span class="fc" id="L188">            PatientResponseBody patientDetails = adminService.getPatientDetailsById(patientId);</span>
+<span class="fc" id="L189">            return ResponseEntity.ok(patientDetails);</span>
+<span class="fc" id="L190">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L191">            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

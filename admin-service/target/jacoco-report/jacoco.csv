@@ -1,0 +1,15 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+admin-service,com.had.adminservice.responseBody,FacilityResponseBody.FacilityResponseBodyBuilder,30,105,0,0,0,1,1,16,1,16
+admin-service,com.had.adminservice.responseBody,ProfessionalResponseBody.ProfessionalResponseBodyBuilder,26,91,0,0,0,1,1,14,1,14
+admin-service,com.had.adminservice.responseBody,PatientResponseBody.PatientResponseBodyBuilder,14,49,0,0,0,1,1,8,1,8
+admin-service,com.had.adminservice.responseBody,PatientCardDetailResponseBody.PatientCardDetailResponseBodyBuilder,14,49,0,0,0,1,1,8,1,8
+admin-service,com.had.adminservice.responseBody,ProfessionalResponseBody,51,79,0,0,2,14,13,14,13,14
+admin-service,com.had.adminservice.responseBody,PatientResponseBody,27,43,0,0,2,8,7,8,7,8
+admin-service,com.had.adminservice.entity,Facility,28,62,0,0,0,12,7,12,7,12
+admin-service,com.had.adminservice.entity,Facility.FacilityBuilder,24,58,0,0,0,1,2,9,2,9
+admin-service,com.had.adminservice.entity,User.UserBuilder,25,65,0,0,0,1,2,10,2,10
+admin-service,com.had.adminservice.entity,User,30,70,0,0,2,11,8,13,8,13
+admin-service,com.had.adminservice.config,MyConfig,0,7,0,0,0,2,0,2,0,2
+admin-service,com.had.adminservice.controllers,AdminController,55,222,2,10,17,60,2,18,0,14
+admin-service,com.had.adminservice.exception,ResourceNotFoundException,0,4,0,0,0,2,0,1,0,1
+admin-service,com.had.adminservice.service,AdminService,37,729,10,38,10,197,10,36,0,22
